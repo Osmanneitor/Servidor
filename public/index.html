@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="resultado"></div>
+    <form action="/personas" method="POST">
+        <input placeholder="nombre" name="nombre">
+        <input placeholder="apellido" name="apellido">
+        <input placeholder="edad" name="edad">
+        <button type="submit">Añadir al Array</button>
+    </form>
+    <input placeholder="Nombre" id="nombre">
+    <input placeholder="Apellido" id="apellido">
+    <input placeholder="edad" id="edad">
+    <button onclick="Modificar()">Modifica</button>
+    <input id="eliminar">
+    <button onclick="Eliminar()">Eliminar</button>
+
+    <script>
+        Contenido()
+        function Contenido() {
+            fetch('/personas', {
+                method: "GET",
+                Headers: {
+                    "Content-Type": "application/json; charset=utf-8"
+                },
+
+            }).then(function (datos) {
+                return datos.json()
+            }).then(function (datos) {
+                let texto = '';
+                for (let i = 0; i < datos.length; i++) {
+                    texto += `<p>Nombre: ${datos[i].nombre}</p><p>Apellido: ${datos[i].apellido}</p><p>edad: ${datos[i].edad}</p>`
+                }
+                document.getElementById('resultado').innerHTML += texto
+            })
+
+        }
+
+        function Modificar() {
+            let nombre = document.getElementById('nombre').value;
+            let apellido = document.getElementById('apellido').value;
+            let edad = document.getElementById('edad').value;
+            fetch('/', {
+                method: "PUT",
+                body: JSON.stringify({
+                    nombre: nombre,
+                    apellido: apellido,
+                    edad: edad,
+                }),
+                headers: {
+                    "Content-Type": "application/json; charset=UTF-8"
+                }
+            }).then(function (datos) {
+                return datos.json();
+            }).then(function (datos) {
+                document.getElementById('resultado').innerHTML = ''
+                for (let i = 0; i < datos.length; i++) {
+                    document.getElementById('resultado').innerHTML += `<p>Nombre: ${datos[i].nombre}</p><p>Apellido: ${datos[i].apellido}</p><p>Edad: ${datos[i].edad}</p>`
+                }
+            })
+        }
+        function Eliminar() {
+            let nombre = document.getElementById('eliminar').value
+            fetch('/', {
+                method: "DELETE",
+                body: JSON.stringify({nombre:nombre}),
+                headers: {
+                    "Content-Type": "application/json; charset=UTF-8"
+                }
+            }).then(function (datos) {
+                return datos.json();
+            }).then(function (datos) {
+                let texto='';
+                for (let i = 0; i < datos.length; i++) {
+                    if (nombre === datos[i].nombre) {
+                        datos.splice(i, 1)
+                    }
+                    texto +=  `<p>${datos[i].nombre}</p><p>${datos[i].apellido}</p><p>${datos[i].edad}</p>`;
+                }document.getElementById('resultado').innerHTML = texto;
+
+            })
+        }
+    </script>
+</body>
+
+</html>
